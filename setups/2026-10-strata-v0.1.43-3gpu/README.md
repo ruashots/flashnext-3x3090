@@ -21,7 +21,7 @@ It is the [two-card v0.1.40.2 setup](https://github.com/ruashots/flashnext-2x309
 
 The whole server config is [`strata-orca-0143-262k-img4096.json`](strata-orca-0143-262k-img4096.json). What the less obvious bits do:
 
-- `"gpu": [0, 1, 2]` with `"layer_split": "auto"`: Strata measures each card and picks the split itself. On the 262K setup it put layers 0-13, 14-29 and 30-47 on the three cards. With three cards about 91% of the experts sit on the cards, against about 60% on two, and that's where the faster prompt reading comes from.
+- `"gpu": [0, 1, 2]` with `"layer_split": "auto"`: Strata measures each card and picks the split itself. On the 262K setup it put layers 0-13, 14-29 and 30-47 on the three cards. With three cards about 91% of the experts sit on the cards, against about 60% on two, and that's where the faster prompt processing comes from.
 - `--trim-stage-weights`: each card only loads its own layers' weights, so more experts fit in VRAM.
 - `--batch 2 --batch-groups 2`: two requests at once, pipelined through the cards.
 - `--mmap-experts`: Strata maps the 61 GiB expert file instead of reading it all into locked RAM, so the OS file cache holds what the cards don't, and can give that memory back.
@@ -30,7 +30,7 @@ The whole server config is [`strata-orca-0143-262k-img4096.json`](strata-orca-01
 - `"vision": {"max_tokens": 4096}`: how many tokens a picture can turn into. At 4096 a full-screen 2560x1440 screenshot with small text reads right, at 1024 and 2048 it didn't.
 - `"sampling"`: clients that send no sampler get temperature 1.0, top_p 0.95, top_k 20, what the model card asks for. Without it Strata answers greedy, and a hard prompt could get stuck thinking in a loop.
 
-On the 262K and 512K setups the extra RAM doesn't show, the busy experts are on the cards. At 1M it does: with the container capped at 58 GB, a varied 1M prompt read at 751 tok/s because the model kept being read back from disk, and at 100 GB it reads at about 1,900 ([details](../../BENCHMARKS.md#retrieval)).
+On the 262K and 512K setups the extra RAM doesn't show, the busy experts are on the cards. At 1M it does: with the container capped at 58 GB, a varied 1M prompt processed at 751 tok/s because the model kept being read back from disk, and at 100 GB it processes at about 1,900 ([details](../../BENCHMARKS.md#retrieval)).
 
 ## Run the same thing
 

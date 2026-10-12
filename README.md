@@ -8,9 +8,9 @@ The two-card story, from llama.cpp at 39 tok/s to Strata at 110, is in [flashnex
 
 OrcaRouter's uncensored IQ4_XS build of Qwen3.8-Flash-Next, served by [Strata](https://github.com/Niko1221/Strata) on three RTX 3090s. Images on, two requests at once, 262K context.
 
-It writes at 105 to 140 tok/s and reads long prompts at about 3,600 tok/s. A 250K prompt is read in about 70 seconds.
+It decodes at 105 to 140 tok/s and does prompt processing at about 3,600 tok/s on long prompts. A 250K prompt is processed in about 70 seconds.
 
-| Prompt length | Writes (tok/s) | Reads the prompt (tok/s) | First token |
+| Prompt length | Decode (tok/s) | Prompt processing (tok/s) | First token |
 | ------------- | -------------: | -----------------------: | ----------: |
 | ~140 tokens   |            139 |                        - |       0.6 s |
 | ~4.2K tokens  |            127 |                    1,317 |       3.2 s |
@@ -29,7 +29,7 @@ The box: 3x RTX 3090 24 GB capped at 225 W, Ryzen 7 9800X3D, 128 GB DDR5, NVMe, 
 
 Same model, same scripts, same 262K setup. The two-card numbers are from the [October 7 run](https://github.com/ruashots/flashnext-2x3090/blob/main/BENCHMARKS.md) on v0.1.40.2.
 
-| Prompt (tokens) | Reads, 2 cards | Reads, 3 cards | Writes, 2 cards | Writes, 3 cards |
+| Prompt (tokens) | Prompt processing, 2 cards | Prompt processing, 3 cards | Decode, 2 cards | Decode, 3 cards |
 | ---: | ---: | ---: | ---: | ---: |
 | ~140 | - | - | 110 | 139 |
 | ~4.2K | 989 | 1,317 | 112 | 127 |
@@ -38,10 +38,10 @@ Same model, same scripts, same 262K setup. The two-card numbers are from the [Oc
 | ~205K | 2,314 | 3,662 | 76 | 118 |
 | ~251K | 2,567 | 3,637 | 107 | 104 |
 
-Prompt reading is about 30 to 60% faster, and writing is about 15 to 25% faster on most lengths. Two things changed between those runs, the card count and the engine (v0.1.40.2 to v0.1.43), so I ran a quick same-day test to split them ([`raw/strata-0141-3gpu-quick-2026-10-11.jsonl`](raw/strata-0141-3gpu-quick-2026-10-11.jsonl), code prompts, 3 runs each):
+Prompt processing is about 30 to 60% faster, and decode is about 15 to 25% faster on most lengths. Two things changed between those runs, the card count and the engine (v0.1.40.2 to v0.1.43), so I ran a quick same-day test to split them ([`raw/strata-0141-3gpu-quick-2026-10-11.jsonl`](raw/strata-0141-3gpu-quick-2026-10-11.jsonl), code prompts, 3 runs each):
 
-- **Prompt reading is the card.** On v0.1.41, adding the third card took a 32K prompt from 2,191 to 2,815 tok/s, and 2K from 638 to 1,056.
-- **Writing, mostly not.** In the same test the third card alone moved writing within noise, except short prompts (106 to 130). So part of the writing gain against October 7 came from somewhere else, and I can't pin it on one thing.
+- **Prompt processing is the card.** On v0.1.41, adding the third card took a 32K prompt from 2,191 to 2,815 tok/s, and 2K from 638 to 1,056.
+- **Decode, mostly not.** In the same test the third card alone moved decode within noise, except short prompts (106 to 130). So part of the decode gain against October 7 came from somewhere else, and I can't pin it on one thing.
 - **v0.1.41 to v0.1.43** on three cards changed nothing past noise.
 
 Why: Strata keeps the experts the model uses most on the cards and runs the rest on the CPU. Two cards held about 60% of the experts, three hold about 91%.
@@ -54,7 +54,7 @@ From the [benchmark run](BENCHMARKS.md) on October 12:
 - **GSM8K:** 1,270 of the 1,319 test problems, 96.3%, thinking off. Same as two cards (96.4%), as it should be: the model is the same, only where it runs changed.
 - **Two short chats at once:** about 77 tok/s each, 136 tok/s together. On two cards it was 58 each and 102 together.
 - **Four requests at once:** two 60K prompts, a short question and a screenshot, sent within a second. All four finished, in 44 s.
-- **1M needs RAM:** with the container capped at 58 GB, a varied 1M prompt read at 751 tok/s, because the model kept being read back from disk. At 100 GB it reads at about 1,900 ([details](BENCHMARKS.md#retrieval)).
+- **1M needs RAM:** with the container capped at 58 GB, a varied 1M prompt processed at 751 tok/s, because the model kept being read back from disk. At 100 GB it processes at about 1,900 ([details](BENCHMARKS.md#retrieval)).
 - **Limits:** each run past 128K ran once, so those numbers are noisy. The cards are capped at 225 W, and the server kept serving my agents during the runs.
 
 **The options**, same box, same model files, a config swap and a restart between them:
@@ -62,9 +62,9 @@ From the [benchmark run](BENCHMARKS.md) on October 12:
 | Setup | What it gives | What it costs |
 | --- | --- | --- |
 | **262K**, every day | Two requests at once, images up to 4096 tokens, 139 tok/s short, 115 at 131K | Prompts top out at 262K |
-| **512K** | A 500K prompt read in about 2.5 min, then 94 tok/s | Stretched with yarn, one request at a time, smaller image cap |
+| **512K** | A 500K prompt processed in about 2.5 min, then 94 tok/s decode | Stretched with yarn, one request at a time, smaller image cap |
 | **512K, two at once** | Two requests at once up to 512K | About 10% slower than the one-at-a-time 512K, and two long prompts at once are slow (see [BENCHMARKS.md](BENCHMARKS.md#one-versus-two-requests-at-once)) |
-| **1M** | A 1M prompt read in about 7 min, then 84 tok/s | Stretched further, one request at a time, short answers slower (114 tok/s), stream the reply at this length |
+| **1M** | A 1M prompt processed in about 7 min, then 84 tok/s decode | Stretched further, one request at a time, short answers slower (114 tok/s), stream the reply at this length |
 
 The configs are in [`setups/2026-10-strata-v0.1.43-3gpu/`](setups/2026-10-strata-v0.1.43-3gpu/).
 
@@ -118,7 +118,7 @@ Strata is by [Niko1221](https://github.com/Niko1221), and it's the reason this b
 | --- | --- |
 | [`setups/`](setups) | One folder per setup: configs, service and the steps to build it. The newest is what runs now |
 | [`BENCHMARKS.md`](BENCHMARKS.md) | The full benchmark set for the current setup: speed to 1M, two at once, retrieval, GSM8K, method and limits |
-| [`scripts/bench.py`](scripts/bench.py) | Speed: nonce per prompt, warm-up first, decode and prompt reading separately |
+| [`scripts/bench.py`](scripts/bench.py) | Speed: nonce per prompt, warm-up first, decode and prompt processing separately |
 | [`scripts/quality.py`](scripts/quality.py), [`scripts/autograde.py`](scripts/autograde.py) | The fixed 20-prompt set and the grader for its 6 objective items |
 | [`scripts/probe.py`](scripts/probe.py) | Images, two requests at once, four at once (`burst`), coming back to a conversation |
 | [`scripts/canonical_262k.sh`](scripts/canonical_262k.sh), [`canonical_long.sh`](scripts/canonical_long.sh), [`canonical_1m_rest.sh`](scripts/canonical_1m_rest.sh) | The benchmark set in BENCHMARKS.md, with [`gsm8k.py`](scripts/gsm8k.py), [`needle_multikey.py`](scripts/needle_multikey.py), [`needle_stream.py`](scripts/needle_stream.py) and [`canonical_summary.py`](scripts/canonical_summary.py) for the tables |
