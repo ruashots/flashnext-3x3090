@@ -1,0 +1,40 @@
+Canonical benchmark set, Strata 0.1.43 on 3x RTX 3090, 2026-10-12. Exact commands, in the order they ran.
+Hardware, software versions and the four server configs: strata-0143-3gpu-2026-10-12-env.txt (same folder).
+
+Server: Strata v0.1.43 (commit 7695859a), engine built from source with CUDA 13.0 for sm_86, run as
+  python -m serve.server --engine strata --config <config> --host 0.0.0.0 --port 8080
+Model: Qwen3.8-Flash-Next-OrcaRouter, IQ4_XS GGUF (3 shards) + native pack + MTP draft layer.
+Configs (setups/2026-10-strata-v0.1.43-3gpu/):
+  C262   = strata-orca-0143-262k-img4096.json: 262,144 context, 2 requests at once, 3 GPUs, layer split auto.
+  C512   = strata-orca-0143-512k.json: 524,288 context, yarn x2, one request at a time.
+  C512B2 = strata-orca-0143-512k-b2.json: the same with --batch 2 --batch-groups 2.
+  C1M    = strata-orca-0143-1m.json: 1,048,576 context, yarn x4, one request at a time.
+Haystack for the needle tests: a plain clone of Strata at tag v0.1.40.2, passed as STRATA=<path>, the same text as
+the 2-card run on 2026-10-07.
+
+U=http://<server>:8080   M=Qwen3.8-Flash-Next-OrcaRouter   RUN=strata-0143-3gpu-2026-10-12
+
+# C262
+URL=$U STRATA=$STRATA RUN=$RUN scripts/canonical_262k.sh
+  (bench ladder 0-128K x3 code+reason, 200K and 245K x1, probe.py concurrent at 0,0,0,4000,4000,4000,32000,
+   probe.py burst --ctx 60000, needle_bench 4k-256k x 5 depths, needle_multikey 32k/128k/256k x 3 depths,
+   quality.py, gsm8k.py full set with 2 workers)
+
+# C512 (strata-context 512k)
+URL=$U STRATA=$STRATA RUN=$RUN scripts/canonical_long.sh 512k
+
+# C512B2 (server config switched to strata-orca-0143-512k-b2.json)
+for c in 0 0 0 4000 4000 4000 32000 200000; do python3 scripts/probe.py concurrent --url $U/v1 --label C512B2 --ctx $c --max-tokens 600 --out raw/$RUN-probes.jsonl; done
+python3 scripts/bench.py --url $U/v1 --model $M --label C512B2 --out raw/$RUN-bench.jsonl --contexts 0,4000 --tasks code,reason --runs 3
+python3 scripts/bench.py --url $U/v1 --model $M --label C512B2 --out raw/$RUN-bench.jsonl --contexts 500000 --tasks reason --runs 1 --warmup 0 --timeout 5400
+
+# C1M (strata-context 1m)
+URL=$U STRATA=$STRATA RUN=$RUN scripts/canonical_long.sh 1m          # speed rows
+# here the container's memory cap went from 58 GB to 100 GB, see the env file
+URL=$U STRATA=$STRATA RUN=$RUN scripts/canonical_1m_rest.sh          # streamed needles, multi-key, quality, GSM8K first 250
+
+python3 scripts/canonical_summary.py $RUN
+
+Note on the 1M needle at depth 10: the row in the needle file is a single check run, the first request after the
+memory cap went to 100 GB (needle_stream.py --lengths 1000k --depths 10). canonical_1m_rest.sh then sent the same
+prompt again and Strata answered it from its conversation cache in 0.7 s, so that repeat was dropped.

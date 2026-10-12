@@ -1,0 +1,367 @@
+== host
+pve-manager/9.2.2/b9984c6d90a4bd80 (running kernel: 7.0.2-6-pve)
+7.0.2-6-pve
+CPU(s):                                  16
+Model name:                              AMD Ryzen 7 9800X3D 8-Core Processor
+Thread(s) per core:                      2
+CPU(s) scaling MHz:                      26%
+               total        used        free      shared  buff/cache   available
+Mem:             123          27          60          11          47          95
+Swap:              7           0           7
+      4 	Configured Memory Speed: 4800 MT/s
+      4 	Configured Voltage: 1.1 V
+      2 	Part Number: CMK64GX5M2B5200C40
+      2 	Part Number: KF556C40-32                   
+      4 	Size: 32 GB
+      4 	Volatile Size: 32 GB
+always madvise [never]
+index, name, memory.total [MiB], driver_version, pcie.link.gen.max, pcie.link.width.max, power.limit [W], pci.sub_device_id
+0, NVIDIA GeForce RTX 3090, 24576 MiB, 595.71.05, 4, 16, 225.00 W, 0x39823842
+1, NVIDIA GeForce RTX 3090, 24576 MiB, 595.71.05, 4, 16, 225.00 W, 0x403B1458
+2, NVIDIA GeForce RTX 3090, 24576 MiB, 595.71.05, 4, 16, 225.00 W, 0x38801028
+	[4mGPU0	GPU1	GPU2	CPU Affinity	NUMA Affinity	GPU NUMA ID[0m
+GPU0	 X 	PHB	PHB	0-15	0		N/A
+GPU1	PHB	 X 	PHB	0-15	0		N/A
+GPU2	PHB	PHB	 X 	0-15	0		N/A
+
+Legend:
+
+  X    = Self
+  SYS  = Connection traversing PCIe as well as the SMP interconnect between NUMA nodes (e.g., QPI/UPI)
+  NODE = Connection traversing PCIe as well as the interconnect between PCIe Host Bridges within a NUMA node
+  PHB  = Connection traversing PCIe as well as a PCIe Host Bridge (typically the CPU)
+  PXB  = Connection traversing multiple PCIe bridges (without traversing the PCIe Host Bridge)
+  PIX  = Connection traversing at most a single PCIe bridge
+  NV#  = Connection traversing a bonded set of # NVLinks
+NAME    MODEL                  SIZE ROTA
+sda     HGST HTS721010A9E630 931.5G    1
+sdb     FUJITSU MHY2250BH    232.9G    1
+nvme0n1 XPG SPECTRIX S40G      1.9T    0
+== container (the LXC the server runs in)
+cores: 16
+memory: 59392
+swap: 0
+PRETTY_NAME="Ubuntu 24.04 LTS"
+Cuda compilation tools, release 13.0, V13.0.88
+Build cuda_13.0.r13.0/compiler.36424714_0
+7695859a Canonical Q2_0 pack: the measured PCIe share is opt-in on Windows (STRATA_PCIE_AUTO_CANON=1); RTX 5070: code +2.5%, a short answer -3.3%, 5 pairs
+v0.1.43
+BUILD.json
+strata
+strata-vision
+total 96074952
+drwxr-xr-x 3 root root        4096 Oct  2 08:37 .
+drwxr-xr-x 3 root root        4096 Oct  2 02:17 ..
+drwxr-xr-x 3 root root        4096 Oct  2 02:17 .cache
+-rw-r--r-- 1 root root 44766155936 Oct  2 08:36 Qwen3.8-Flash-Next-Uncensored-IQ4_XS-00001-of-00003.gguf
+-rw-r--r-- 1 root root 44735995008 Oct  2 08:37 Qwen3.8-Flash-Next-Uncensored-IQ4_XS-00002-of-00003.gguf
+-rw-r--r-- 1 root root  7971004256 Oct  2 08:26 Qwen3.8-Flash-Next-Uncensored-IQ4_XS-00003-of-00003.gguf
+-rw-r--r-- 1 root root   907543296 Oct  2 08:23 mmproj-Qwen3.8-Flash-Next-Uncensored-F16.gguf
+63G	packs/orca-iq4xs/
+== strata-orca-0143-262k-img4096.json
+{
+  "exe": "/opt/strata/Strata-0143/engine/strata",
+  "args": [
+    "--pack",
+    "packs/orca-iq4xs",
+    "--native",
+    "/opt/strata/models/orca-iq4xs/Qwen3.8-Flash-Next-Uncensored-IQ4_XS-00001-of-00003.gguf",
+    "--expert-profile",
+    "data/expert-profile.bin",
+    "--expert-cache",
+    "auto",
+    "--prefill",
+    "auto",
+    "--spec",
+    "4",
+    "--spec-min-p",
+    "0.5",
+    "--mtp",
+    "mtp/rt",
+    "--max-context",
+    "262144",
+    "--kv",
+    "int8",
+    "--mmap-experts",
+    "--kv-resident",
+    "20480",
+    "--vision",
+    "--vram-reserve-mib",
+    "700",
+    "--batch",
+    "2",
+    "--batch-groups",
+    "2",
+    "--trim-stage-weights",
+    "--conversation-cache-mib",
+    "8192",
+    "--conversation-cache-slots",
+    "8"
+  ],
+  "cwd": "/opt/strata/Strata-0143",
+  "tokenizer": "packs/orca-iq4xs/tokenizer",
+  "model_name": "Qwen3.8-Flash-Next-OrcaRouter",
+  "log": "/opt/strata/strata-orca-iq4xs.log",
+  "lib_dirs": [
+    "/usr/local/cuda/bin",
+    "/usr/local/cuda/lib64"
+  ],
+  "gpu": [
+    0,
+    1,
+    2
+  ],
+  "layer_split": "auto",
+  "host": "0.0.0.0",
+  "port": 8080,
+  "env": {
+    "STRATA_IQ_PREFETCH": "16384"
+  },
+  "vision": {
+    "exe": "/opt/strata/Strata-0143/engine/strata-vision",
+    "mmproj": "/opt/strata/models/orca-iq4xs/mmproj-Qwen3.8-Flash-Next-Uncensored-F16.gguf",
+    "model": "/opt/strata/models/orca-iq4xs/Qwen3.8-Flash-Next-Uncensored-IQ4_XS-00001-of-00003.gguf",
+    "gpu": true,
+    "max_tokens": 4096
+  },
+  "sampling": {
+    "temperature": 1.0,
+    "top_p": 0.95,
+    "top_k": 20
+  },
+  "aliases": [
+    "orca-iq4xs"
+  ],
+  "allowed_hosts": [
+    "<my LAN hostname>"
+  ]
+}
+== strata-orca-0143-512k.json
+{
+  "exe": "/opt/strata/Strata-0143/engine/strata",
+  "args": [
+    "--pack",
+    "packs/orca-iq4xs",
+    "--native",
+    "/opt/strata/models/orca-iq4xs/Qwen3.8-Flash-Next-Uncensored-IQ4_XS-00001-of-00003.gguf",
+    "--expert-profile",
+    "data/expert-profile.bin",
+    "--expert-cache",
+    "auto",
+    "--prefill",
+    "auto",
+    "--spec",
+    "4",
+    "--spec-min-p",
+    "0.5",
+    "--mtp",
+    "mtp/rt",
+    "--max-context",
+    "524288",
+    "--kv",
+    "int8",
+    "--mmap-experts",
+    "--kv-resident",
+    "20480",
+    "--vision",
+    "--vram-reserve-mib",
+    "700",
+    "--rope-scaling",
+    "yarn",
+    "--rope-scale",
+    "2"
+  ],
+  "cwd": "/opt/strata/Strata-0143",
+  "tokenizer": "packs/orca-iq4xs/tokenizer",
+  "model_name": "Qwen3.8-Flash-Next-OrcaRouter",
+  "log": "/opt/strata/strata-orca-iq4xs.log",
+  "lib_dirs": [
+    "/usr/local/cuda/bin",
+    "/usr/local/cuda/lib64"
+  ],
+  "gpu": [
+    0,
+    1,
+    2
+  ],
+  "layer_split": "auto",
+  "host": "0.0.0.0",
+  "port": 8080,
+  "env": {
+    "STRATA_IQ_PREFETCH": "16384"
+  },
+  "vision": {
+    "exe": "/opt/strata/Strata-0143/engine/strata-vision",
+    "mmproj": "/opt/strata/models/orca-iq4xs/mmproj-Qwen3.8-Flash-Next-Uncensored-F16.gguf",
+    "model": "/opt/strata/models/orca-iq4xs/Qwen3.8-Flash-Next-Uncensored-IQ4_XS-00001-of-00003.gguf",
+    "gpu": true,
+    "max_tokens": 1024
+  },
+  "sampling": {
+    "temperature": 1.0,
+    "top_p": 0.95,
+    "top_k": 20
+  },
+  "aliases": [
+    "orca-iq4xs"
+  ],
+  "allowed_hosts": [
+    "<my LAN hostname>"
+  ]
+}
+== strata-orca-0143-512k-b2.json
+{
+  "exe": "/opt/strata/Strata-0143/engine/strata",
+  "args": [
+    "--pack",
+    "packs/orca-iq4xs",
+    "--native",
+    "/opt/strata/models/orca-iq4xs/Qwen3.8-Flash-Next-Uncensored-IQ4_XS-00001-of-00003.gguf",
+    "--expert-profile",
+    "data/expert-profile.bin",
+    "--expert-cache",
+    "auto",
+    "--prefill",
+    "auto",
+    "--spec",
+    "4",
+    "--spec-min-p",
+    "0.5",
+    "--mtp",
+    "mtp/rt",
+    "--max-context",
+    "524288",
+    "--kv",
+    "int8",
+    "--mmap-experts",
+    "--kv-resident",
+    "20480",
+    "--vision",
+    "--vram-reserve-mib",
+    "700",
+    "--rope-scaling",
+    "yarn",
+    "--rope-scale",
+    "2",
+    "--batch",
+    "2",
+    "--batch-groups",
+    "2"
+  ],
+  "cwd": "/opt/strata/Strata-0143",
+  "tokenizer": "packs/orca-iq4xs/tokenizer",
+  "model_name": "Qwen3.8-Flash-Next-OrcaRouter",
+  "log": "/opt/strata/strata-orca-iq4xs.log",
+  "lib_dirs": [
+    "/usr/local/cuda/bin",
+    "/usr/local/cuda/lib64"
+  ],
+  "gpu": [
+    0,
+    1,
+    2
+  ],
+  "layer_split": "auto",
+  "host": "0.0.0.0",
+  "port": 8080,
+  "env": {
+    "STRATA_IQ_PREFETCH": "16384"
+  },
+  "vision": {
+    "exe": "/opt/strata/Strata-0143/engine/strata-vision",
+    "mmproj": "/opt/strata/models/orca-iq4xs/mmproj-Qwen3.8-Flash-Next-Uncensored-F16.gguf",
+    "model": "/opt/strata/models/orca-iq4xs/Qwen3.8-Flash-Next-Uncensored-IQ4_XS-00001-of-00003.gguf",
+    "gpu": true,
+    "max_tokens": 1024
+  },
+  "sampling": {
+    "temperature": 1.0,
+    "top_p": 0.95,
+    "top_k": 20
+  },
+  "aliases": [
+    "orca-iq4xs"
+  ],
+  "allowed_hosts": [
+    "<my LAN hostname>"
+  ]
+}
+== strata-orca-0143-1m.json
+{
+  "exe": "/opt/strata/Strata-0143/engine/strata",
+  "args": [
+    "--pack",
+    "packs/orca-iq4xs",
+    "--native",
+    "/opt/strata/models/orca-iq4xs/Qwen3.8-Flash-Next-Uncensored-IQ4_XS-00001-of-00003.gguf",
+    "--expert-profile",
+    "data/expert-profile.bin",
+    "--expert-cache",
+    "auto",
+    "--prefill",
+    "auto",
+    "--spec",
+    "4",
+    "--spec-min-p",
+    "0.5",
+    "--mtp",
+    "mtp/rt",
+    "--max-context",
+    "1048576",
+    "--kv",
+    "int8",
+    "--mmap-experts",
+    "--kv-resident",
+    "20480",
+    "--vision",
+    "--vram-reserve-mib",
+    "700",
+    "--rope-scaling",
+    "yarn",
+    "--rope-scale",
+    "4"
+  ],
+  "cwd": "/opt/strata/Strata-0143",
+  "tokenizer": "packs/orca-iq4xs/tokenizer",
+  "model_name": "Qwen3.8-Flash-Next-OrcaRouter",
+  "log": "/opt/strata/strata-orca-iq4xs.log",
+  "lib_dirs": [
+    "/usr/local/cuda/bin",
+    "/usr/local/cuda/lib64"
+  ],
+  "gpu": [
+    0,
+    1,
+    2
+  ],
+  "layer_split": "auto",
+  "host": "0.0.0.0",
+  "port": 8080,
+  "env": {
+    "STRATA_IQ_PREFETCH": "16384"
+  },
+  "vision": {
+    "exe": "/opt/strata/Strata-0143/engine/strata-vision",
+    "mmproj": "/opt/strata/models/orca-iq4xs/mmproj-Qwen3.8-Flash-Next-Uncensored-F16.gguf",
+    "model": "/opt/strata/models/orca-iq4xs/Qwen3.8-Flash-Next-Uncensored-IQ4_XS-00001-of-00003.gguf",
+    "gpu": true,
+    "max_tokens": 1024
+  },
+  "sampling": {
+    "temperature": 1.0,
+    "top_p": 0.95,
+    "top_k": 20
+  },
+  "aliases": [
+    "orca-iq4xs"
+  ],
+  "allowed_hosts": [
+    "<my LAN hostname>"
+  ]
+}
+
+== change during the run
+The container's memory cap went from 59392 MiB (58 GB) to 102400 MiB (100 GB) after the 1M speed rows and before the
+1M needle, multi-key, quality and GSM8K rows. At 58 GB, a 1M needle prompt read at 751 tok/s and the OS read 237 GB
+of expert weights back from disk for it (strata-0143-3gpu-2026-10-12-needle-1m-at-58gb-cap.jsonl). At 100 GB the same
+prompt read at 1,906 tok/s. The 262K, 512K and 1M speed rows all ran at 58 GB.
