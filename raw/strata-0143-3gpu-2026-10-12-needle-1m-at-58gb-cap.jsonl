@@ -1,2 +1,1 @@
 {"label": "C1M", "test": "needle", "length": "1000k", "depth": 10, "prompt_tokens": 1014818, "seconds": 1351.1, "found": true, "word": "meadow-copper-504", "answer": "meadow-copper-504", "streamed": true}
-{"label": "C1M", "test": "needle", "length": "1000k", "depth": 50, "prompt_tokens": null, "seconds": 149.5, "found": false, "word": "falcon-quartz-940", "answer": "", "streamed": true}
